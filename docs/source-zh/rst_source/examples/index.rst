@@ -1,5 +1,5 @@
 示例库
-=====
+========
 
 本节展示了 **RLinf 目前支持的示例集合**，  
 展示该框架如何应用于不同场景，并演示其在实际中的高效性。示例库会随着时间不断扩展，涵盖新的场景和任务，以展示 RLinf 的多样性和可扩展性。
@@ -78,7 +78,7 @@
          <a href="https://rlinf.readthedocs.io/zh-cn/latest/rst_source/examples/gr00t.html" target="_blank" style="text-decoration: underline; color: blue;">
           <b>GR00T-N1.5模型强化学习训练</b>
          </a><br>
-         支持不同具身结构的双系统模型强化学习训练
+         支持GR00T-N1.5强化学习微调
        </p>
      </div>
    </div>
@@ -231,6 +231,6 @@ RLinf的整体设计简洁且模块化，以Worker为抽象封装强化学习训
    behavior
    metaworld
    pi0
+   gr00t
    reasoning
    coding_online_rl
-   gr00t
