@@ -58,6 +58,8 @@ elif [ "$TARGET" = "openvla-oft" ]; then
     fi
 elif [ "$TARGET" = "openpi" ]; then
     UV_TORCH_BACKEND=auto GIT_LFS_SKIP_SMUDGE=1 uv pip install -r requirements/openpi.txt
+    # Install metaworld separately to avoid dependency conflicts
+    uv pip install -r requirements/metaworld.txt
     cp -r .venv/lib/python3.11/site-packages/openpi/models_pytorch/transformers_replace/* .venv/lib/python3.11/site-packages/transformers/
     export TOKENIZER_DIR=~/.cache/openpi/big_vision/ && mkdir -p $TOKENIZER_DIR && gsutil -m cp -r gs://big_vision/paligemma_tokenizer.model $TOKENIZER_DIR
 elif [ "$TARGET" = "reason" ]; then

@@ -18,7 +18,7 @@ cluster:
 runner:
   task_type: embodied
   logger:
-    log_path: "../results"
+    log_path: "../ppo_pi05_results"
     project_name: rlinf
     experiment_name: "test_openpi"
     logger_backends: ["tensorboard"] # wandb, swanlab
@@ -99,7 +99,7 @@ rollout:
     queue_size: 0
   mode: "colocate"
   generation_backend: "huggingface"
-  model_dir: "/path/to/model/openpi"
+  model_dir: "/home/yueteng/g1/RLinf/pi0.5-sft"
   precision: ${actor.model.precision}
   recompute_logprobs: False
   unnorm_key: libero_10
@@ -113,7 +113,7 @@ actor:
     queue_name: "replay_buffer"
     queue_size: 0
   training_backend: "fsdp"
-  checkpoint_load_path: "/path/to/model/openpi"
+  checkpoint_load_path: "/home/yueteng/g1/RLinf/pi0.5-sft"
   checkpoint_save_path: "../results"
   micro_batch_size: 128
   global_batch_size: 2048 # maximum : global batch size = micro batch size * actor num_processes.
