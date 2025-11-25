@@ -17,3 +17,6 @@ logs/*
 uv.lock
 rlinf/envs/maniskill/assets
 pi0.5-sft/
+*.safetensors
+lerobot/tests/artifacts/
+lerobot/tests/artifacts/
