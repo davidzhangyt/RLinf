@@ -13,7 +13,7 @@ python -m lerobot.scripts.lerobot_record \
     --robot.interface=can0 \
     --robot.cameras='{
         "front": {"type": "opencv", "index_or_path": "/dev/video6", "width": 640, "height": 480, "fps": 30},
-        "arm": {"type": "opencv", "index_or_path": "/dev/video10", "width": 640, "height": 480, "fps": 30}
+        "arm": {"type": "opencv", "index_or_path": "/dev/video12", "width": 640, "height": 480, "fps": 30}
     }' \
     --robot.id=yueteng \
     --robot.calibration_dir=./cali/ \
@@ -21,9 +21,9 @@ python -m lerobot.scripts.lerobot_record \
     --teleop.interface=can1 \
     --teleop.id=leader \
     --display_data=true \
-    --dataset.repo_id=yueteng/pusht1201_1 \
-    --dataset.num_episodes=50 \
-    --dataset.single_task="push t." \
+    --dataset.repo_id=yueteng/pusht1202_3 \
+    --dataset.num_episodes=1 \
+    --dataset.single_task="Push the T-block to the target" \
     --dataset.push_to_hub=False \
     --dataset.private=False \
     --resume=false

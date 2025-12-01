@@ -267,8 +267,14 @@ class Arx5Follower(Robot):
     @cached_property
     def observation_features(self) -> dict:
         # Return structure
-        # For now simplified to float
-        return {f"joint_{i}.pos": float for i in range(6)} # Assuming 6DOF + gripper
+        features = {f"joint_{i}.pos": float for i in range(6)} # Assuming 6DOF + gripper
+        features["gripper.pos"] = float
+        
+        # Add camera features as (h, w, c) tuples
+        for cam_key, cam_config in self.config.cameras.items():
+            features[cam_key] = (cam_config.height, cam_config.width, 3)
+            
+        return features
         
     @cached_property
     def action_features(self) -> dict:
