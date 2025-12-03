@@ -6,8 +6,35 @@ import time
 from functools import cached_property
 from pathlib import Path
 from typing import Any
+
+import ctypes
 import numpy as np
 
+
+def _preload_modern_libstdcpp():
+    """Fallback safety: ensure libstdc++ is new enough if not already done."""
+    if os.environ.get("LEROBOT_LIBSTDCXX_PRELOADED") == "1":
+        return
+
+    candidates = []
+    conda_prefix = os.environ.get("CONDA_PREFIX")
+    if conda_prefix:
+        candidates.append(os.path.join(conda_prefix, "lib", "libstdc++.so.6"))
+    candidates.append("/home/yueteng/anaconda3/envs/arx-py310/lib/libstdc++.so.6")
+
+    for lib_path in candidates:
+        if not lib_path or not os.path.exists(lib_path):
+            continue
+        try:
+            ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
+            os.environ["LEROBOT_LIBSTDCXX_PRELOADED"] = "1"
+            logging.info("Preloaded modern libstdc++ from %s", lib_path)
+            return
+        except OSError:
+            continue
+
+
+_preload_modern_libstdcpp()
 # Try to import arx5_interface, if not found, user needs to set PYTHONPATH
 def _import_arx5_interface() -> Any:
     """
@@ -22,24 +49,48 @@ def _import_arx5_interface() -> Any:
     # 2) Scan up the directory tree to find arx5-sdk
     # This handles various nesting levels (e.g. in monorepo or standalone)
     current_path = Path(__file__).resolve()
+    print(f"[DEBUG] Current file: {current_path}")
     for parent in current_path.parents:
         sdk_candidate = parent / "arx5-sdk" / "python"
+        print(f"[DEBUG] Checking: {sdk_candidate}, exists={sdk_candidate.exists()}")
         if sdk_candidate.exists():
             search_paths.append(sdk_candidate)
+            print(f"[DEBUG] Found SDK at: {sdk_candidate}")
             break
     
     # 3) Current working directory (legacy/fallback)
     search_paths.append(Path.cwd() / "arx5-sdk" / "python")
+    
+    # 4) Dynamic relative path finding (Project structure specific)
+    # We assume the structure: root/lerobot/.../arx5_follower.py and root/arx5-sdk/python
+    # We need to go up 6 levels from this file's directory to reach 'root'
+    # lerobot/src/lerobot/robots/arx5_follower/ -> arx5_follower -> robots -> lerobot -> src -> lerobot -> root
+    try:
+        # Use .resolve() to get absolute path, then go up parents
+        current_file = Path(__file__).resolve()
+        # parents[0] is dir, parents[1] is robots, ... parents[5] is root (RLinf)
+        if len(current_file.parents) > 5:
+            workspace_root = current_file.parents[5]
+            search_paths.append(workspace_root / "arx5-sdk" / "python")
+    except Exception:
+        pass
 
+    print(f"[DEBUG] All search paths: {search_paths}")
     for path in search_paths:
         if not path or not path.exists():
             continue
         abs_path = str(path.resolve())
         if abs_path not in sys.path:
-            sys.path.append(abs_path)
+            sys.path.insert(0, abs_path)  # 插入到最前面，优先级更高
         try:
-            return importlib.import_module("arx5_interface")
-        except ImportError:
+            module = importlib.import_module("arx5_interface")
+            print(f"[DEBUG] Successfully imported arx5_interface from {abs_path}")
+            return module
+        except ImportError as e:
+            print(f"[DEBUG] Import failed from {abs_path}: {e}")
+            continue
+        except Exception as e:
+            print(f"[DEBUG] Unexpected error importing from {abs_path}: {type(e).__name__}: {e}")
             continue
 
     return None
